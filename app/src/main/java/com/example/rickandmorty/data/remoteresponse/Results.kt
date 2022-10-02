@@ -2,6 +2,7 @@ package com.example.example
 
 import com.example.rickandmorty.presentaion.home.Character
 import com.google.gson.annotations.SerializedName
+import kotlin.random.Random
 
 
 data class Results(
@@ -20,18 +21,18 @@ data class Results(
 ) {
     fun toModel(): Character {
         return Character(
-            id,
-            name,
-            status,
-            species,
-            type,
-            gender,
-            origin,
-            location,
-            image,
+            id ?: Random.nextInt(10000),
+            name ?: "",
+            status ?: "",
+            species ?: "",
+            type ?: "",
+            gender ?: "",
+            origin?.toModel(),
+            location?.toModel(),
+            image ?: "",
             episode,
-            url,
-            created
+            url ?: "",
+            created ?: ""
         )
     }
 }

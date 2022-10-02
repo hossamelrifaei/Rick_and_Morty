@@ -20,7 +20,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserPostsApi(): RickAndMortyApi {
+    fun provideRickAndMortyApi(): RickAndMortyApi {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -30,7 +30,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUsersPostsRepository(api: RickAndMortyApi): RickAndMortyRepository {
+    fun provideRickAndMortyRepository(api: RickAndMortyApi): RickAndMortyRepository {
         return RickAndMortyRepositoryImpl(api)
     }
 

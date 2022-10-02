@@ -1,4 +1,4 @@
-package com.example.myupvote.common
+package com.example.rickandmorty.common
 
 import kotlinx.coroutines.flow.Flow
 

@@ -1,6 +1,5 @@
-package com.example.myupvote.common
+package com.example.rickandmorty.common
 
-import com.example.rickandmorty.common.Intent
 import kotlinx.coroutines.flow.Flow
 
 interface ModelStore<S> {

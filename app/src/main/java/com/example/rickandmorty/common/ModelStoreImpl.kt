@@ -1,6 +1,5 @@
 package com.example.rickandmorty.common
 
-import com.example.myupvote.common.ModelStore
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel

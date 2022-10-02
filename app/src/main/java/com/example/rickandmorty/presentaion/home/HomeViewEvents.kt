@@ -1,6 +1,5 @@
 package com.example.rickandmorty.presentaion.home
 
 sealed class HomeViewEvents {
-    object OnViewStart : HomeViewEvents()
-    object OnViewReady : HomeViewEvents()
+    data class OnCharacterSelected(val character: Character) : HomeViewEvents()
 }

@@ -1,12 +1,20 @@
 package com.example.rickandmorty.presentaion.home
 
-import com.example.myupvote.common.ModelStore
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.example.rickandmorty.common.ModelStoreImpl
+import com.example.rickandmorty.presentaion.home.adapter.CharactersPagingSource
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
-import javax.inject.Singleton
 
 
-
-@Singleton
-class HomeModelStore @Inject constructor() : ModelStoreImpl<HomeModel>(HomeModel(loading = true, characters = emptyList(), throwable = null))
+@ViewModelScoped
+class HomeModelStore @Inject constructor(private val pagingSource: CharactersPagingSource) :
+    ModelStoreImpl<HomeState>(
+        HomeState(
+            state = HomeState.State.LOADING,
+            paging = Pager(config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+                pagingSourceFactory = { pagingSource }
+            ).flow
+        )
+    )

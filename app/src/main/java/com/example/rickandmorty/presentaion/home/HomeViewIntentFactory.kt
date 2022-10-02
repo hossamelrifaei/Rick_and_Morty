@@ -1,72 +1,59 @@
 package com.example.rickandmorty.presentaion.home
 
+import androidx.paging.cachedIn
 import com.example.rickandmorty.common.Intent
 import com.example.rickandmorty.common.IntentFactory
 import com.example.rickandmorty.common.intent
-import com.example.rickandmorty.domain.repo.usecases.GetCharactersUsecase
-import dagger.hilt.android.scopes.FragmentScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
+@ViewModelScoped
 class HomeViewIntentFactory @Inject constructor(
-    private val modelStore: HomeModelStore,
-    private val getCharactersUsecase: GetCharactersUsecase
-) :
-    IntentFactory<HomeViewEvents, Flow<HomeModel>> {
+    private val modelStore: HomeModelStore
+) : IntentFactory<HomeViewEvents, Flow<HomeState>> {
     override fun process(viewEvent: HomeViewEvents) {
         modelStore.process(toIntent(viewEvent))
     }
 
-    private fun toIntent(viewEvent: HomeViewEvents): Intent<HomeModel> {
+    private fun toIntent(viewEvent: HomeViewEvents): Intent<HomeState> {
         return when (viewEvent) {
-            HomeViewEvents.OnViewStart -> startLoading()
-            HomeViewEvents.OnViewReady -> loadCharacters()
+            is HomeViewEvents.OnCharacterSelected -> OpenCharacterDeatil(viewEvent.character)
         }
     }
 
-    private fun startLoading(): Intent<HomeModel> {
+    private fun OpenCharacterDeatil(character: Character): Intent<HomeState> {
         return intent {
-            copy(loading = true)
+            copy(state = HomeState.State.NAVIGATE(character))
         }
     }
 
-    private fun chainedIntent(block: HomeModel.() -> HomeModel) =
+
+    private fun chainedIntent(block: HomeState.() -> HomeState) =
         modelStore.process(intent(block))
 
-    fun onSuccess(results: List<Character>) = chainedIntent {
-        copy(characters = results)
+    private fun onSuccess(results: List<Character>) = chainedIntent {
+        copy()
     }
 
-    fun onError(throwable: Throwable) = chainedIntent {
-        copy(throwable = throwable)
+    private fun onError(throwable: Throwable) = chainedIntent {
+        copy()
     }
-    private fun loadCharacters(): Intent<HomeModel> {
-        return intent {
 
-            CoroutineScope(Dispatchers.IO).launch {
-                getCharactersUsecase().collect {
-                    it.onSuccess {
-                        onSuccess(it.characters)
-                    }.onFailure {
-                        onError(it)
-                    }
-                }
+
+    override fun modelState(cacheIn: CoroutineScope?): Flow<HomeState> {
+        cacheIn?.launch {
+            modelStore.modelState().collect {
+                it.paging.cachedIn(this)
             }
-
-            copy()
         }
-    }
-
-
-    override fun modelState(): Flow<HomeModel> {
         return modelStore.modelState()
     }
 
     override fun close() {
-       modelStore.close()
+        modelStore.close()
     }
 }
