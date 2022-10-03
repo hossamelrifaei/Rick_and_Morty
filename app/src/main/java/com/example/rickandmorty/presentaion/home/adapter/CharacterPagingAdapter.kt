@@ -15,6 +15,7 @@ import javax.inject.Inject
 class CharacterPagingAdapter @Inject constructor(
     private val factory: HomeViewIntentFactory,
 ) : PagingDataAdapter<Character, CharacterVH>(CHARACTER_DIFF_CALLBACK) {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterVH {
         val binding =
             CharacterItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)

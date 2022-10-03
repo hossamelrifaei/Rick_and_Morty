@@ -36,7 +36,7 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.charactersList.adapter = viewModel.adapter
+        binding.charactersList.adapter = viewModel.concatAdapter
         viewEvents()
             .onEach { event -> viewModel.process(event) }
             .launchIn(MainScope())

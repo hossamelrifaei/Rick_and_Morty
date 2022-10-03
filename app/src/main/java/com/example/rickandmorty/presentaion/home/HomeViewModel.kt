@@ -1,20 +1,28 @@
 package com.example.rickandmorty.presentaion.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.ConcatAdapter
 import com.example.rickandmorty.common.StateSubscriber
 import com.example.rickandmorty.presentaion.home.adapter.CharacterPagingAdapter
+import com.example.rickandmorty.presentaion.home.adapter.CharactersLoadingStateAdapter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.reduce
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     val factory: HomeViewIntentFactory,
-    val adapter: CharacterPagingAdapter,
+    private val adapter: CharacterPagingAdapter,
+    private val loadingAdapter: CharactersLoadingStateAdapter
 ) : ViewModel(), StateSubscriber<HomeState> {
+    val concatAdapter: ConcatAdapter = adapter.withLoadStateFooter(loadingAdapter)
 
     init {
         factory.modelState(cacheIn = viewModelScope).subscribeToState().launchIn(viewModelScope)
@@ -25,14 +33,17 @@ class HomeViewModel @Inject constructor(
     }
 
     override fun Flow<HomeState>.subscribeToState() = onEach { model ->
-        model.paging.collect {
-            adapter.submitData(it)
-        }
+
+
+        Log.d("STATE",model.state.toString())
         when (model.state) {
-            HomeState.State.FAILED -> model.state
-            HomeState.State.LOADED -> model.state
-            HomeState.State.LOADING -> model.state
-            is HomeState.State.NAVIGATE -> model.state.character
+            is HomeState.State.NAVIGATE -> Log.d("EVENT", "NAVIGATE")
+            is HomeState.State.RETRY -> adapter.retry()
+            HomeState.State.IDEL -> viewModelScope.launch {
+                model.paging.collect {
+                    adapter.submitData(it)
+                }
+            }
         }
     }
 

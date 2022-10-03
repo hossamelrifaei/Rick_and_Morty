@@ -12,8 +12,8 @@ import javax.inject.Inject
 class HomeModelStore @Inject constructor(private val pagingSource: CharactersPagingSource) :
     ModelStoreImpl<HomeState>(
         HomeState(
-            state = HomeState.State.LOADING,
-            paging = Pager(config = PagingConfig(pageSize = 20, prefetchDistance = 5),
+            state = HomeState.State.IDEL,
+            paging = Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = true),
                 pagingSourceFactory = { pagingSource }
             ).flow
         )

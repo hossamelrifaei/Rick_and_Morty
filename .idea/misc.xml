@@ -6,6 +6,7 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.31927083333333334" />
         <entry key="app/src/main/res/layout/character_item.xml" value="0.125" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.29039713541666673" />
+        <entry key="app/src/main/res/layout/loading_error_retry_item.xml" value="0.27395833333333336" />
       </map>
     </option>
   </component>

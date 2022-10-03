@@ -9,10 +9,9 @@ data class HomeState(
     val paging: Flow<PagingData<Character>>
 ) {
     sealed class State {
-        data class NAVIGATE(val character: Character) : HomeState.State()
-        object LOADING : State()
-        object LOADED : State()
-        object FAILED : State()
+        data class NAVIGATE(val character: Character,val count:Int) : State()
+        data class RETRY(val count:Int) : State()
+        object IDEL : State()
     }
 }
 

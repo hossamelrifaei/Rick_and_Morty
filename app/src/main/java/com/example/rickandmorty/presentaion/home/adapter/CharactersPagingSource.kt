@@ -8,6 +8,7 @@ import dagger.hilt.android.scopes.ViewModelScoped
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject
+
 @ViewModelScoped
 class CharactersPagingSource @Inject constructor(val charactersUsecase: GetCharactersUsecase) :
     PagingSource<Int, Character>() {
@@ -22,10 +23,11 @@ class CharactersPagingSource @Inject constructor(val charactersUsecase: GetChara
         return try {
             val response = charactersUsecase(params.key ?: 1)
 
+            val next = (params.key ?: 1)
             LoadResult.Page(
                 data = response.toModel().characters,
-                prevKey = if ((params.key ?: 1) == 1) null else params.key,
-                nextKey = (params.key ?: 1) + 1
+                prevKey = if (next == 1) null else params.key,
+                nextKey = if (next == response.toModel().info.pages) null else next + 1
             )
 
 
