@@ -19,7 +19,7 @@ class CharacterPagingAdapter @Inject constructor(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterVH {
         val binding =
             CharacterItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return CharacterVH(binding) { factory.process(HomeViewEvents.OnCharacterSelected(it)) }
+        return CharacterVH(binding,factory)
     }
 
 

@@ -1,6 +1,5 @@
 package com.example.rickandmorty.presentaion.home
 
-import android.util.Log
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import com.example.rickandmorty.common.Intent
@@ -18,7 +17,6 @@ class HomeViewIntentFactory @Inject constructor(
     private val pagingSource: CharactersPagingSource
 ) : IntentFactory<HomeViewEvents, Flow<HomeState>> {
     override fun process(viewEvent: HomeViewEvents) {
-        Log.d("callback", viewEvent.toString())
         modelStore.process(toIntent(viewEvent))
     }
 

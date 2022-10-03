@@ -1,6 +1,7 @@
 package com.example.rickandmorty.presentaion.home
 
-import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -10,23 +11,24 @@ import com.example.rickandmorty.presentaion.home.adapter.CharacterPagingAdapter
 import com.example.rickandmorty.presentaion.home.adapter.CharactersLoadingStateAdapter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.reduce
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val factory: HomeViewIntentFactory,
+    private val factory: HomeViewIntentFactory,
     private val adapter: CharacterPagingAdapter,
     private val loadingAdapter: CharactersLoadingStateAdapter
 ) : ViewModel(), StateSubscriber<HomeState> {
-    val concatAdapter: ConcatAdapter = adapter.withLoadStateFooter(loadingAdapter)
+    private val _concatAdapter: MutableLiveData<ConcatAdapter> = MutableLiveData<ConcatAdapter>()
+    val concatAdapter: LiveData<ConcatAdapter> = _concatAdapter
 
     init {
         factory.modelState().subscribeToState().launchIn(viewModelScope)
+        factory.process(HomeViewEvents.START)
+        _concatAdapter.value = adapter.withLoadStateFooter(loadingAdapter)
     }
 
     fun process(event: HomeViewEvents) {
@@ -34,11 +36,9 @@ class HomeViewModel @Inject constructor(
     }
 
     override fun Flow<HomeState>.subscribeToState() = onEach { model ->
-
-
-        Log.d("STATE",model.state.toString())
+        //todo filtering
         when (model.state) {
-            is HomeState.State.NAVIGATE -> Log.d("EVENT", model.state.character.name)
+            is HomeState.State.NAVIGATE -> {} //todo character detail screen
             is HomeState.State.RETRY -> adapter.retry()
             is HomeState.State.IDEL -> viewModelScope.launch {
                 model.paging?.cachedIn(this)?.collect {

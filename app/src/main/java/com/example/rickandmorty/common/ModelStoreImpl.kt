@@ -17,10 +17,7 @@ open class ModelStoreImpl<S>(startingState: S) : ModelStore<S> {
     private val store = MutableStateFlow(startingState)
 
     init {
-        scope.launch {
-            while (isActive)
-                store.update { intents.receive().reduce(store.value) }
-        }
+        scope.launch { while (isActive) store.update { intents.receive().reduce(store.value) } }
     }
 
     override fun process(intent: Intent<S>) {
