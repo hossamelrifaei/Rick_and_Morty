@@ -14,6 +14,7 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -24,7 +25,13 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel by viewModels<HomeViewModel>()
+    lateinit var lifeEvents: Flow<HomeViewEvents>
 
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        lifeEvents = flowOf(HomeViewEvents.START)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,6 +47,7 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
         viewEvents()
             .onEach { event -> viewModel.process(event) }
             .launchIn(MainScope())
+
     }
 
     override fun onDestroyView() {
@@ -51,8 +59,7 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
 
     @OptIn(FlowPreview::class)
     override fun viewEvents(): Flow<HomeViewEvents> {
-        //todo for user input
-        val flows = listOf<Flow<HomeViewEvents>>()
+        val flows = listOf(lifeEvents)
         return flows.asFlow().flattenConcat()
     }
 

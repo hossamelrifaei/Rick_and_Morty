@@ -1,21 +1,21 @@
 package com.example.rickandmorty.presentaion.home
 
 import android.util.Log
-import androidx.paging.cachedIn
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import com.example.rickandmorty.common.Intent
 import com.example.rickandmorty.common.IntentFactory
 import com.example.rickandmorty.common.intent
+import com.example.rickandmorty.presentaion.home.adapter.CharactersPagingSource
 import dagger.hilt.android.scopes.ViewModelScoped
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.random.Random
 
 
 @ViewModelScoped
 class HomeViewIntentFactory @Inject constructor(
-    private val modelStore: HomeModelStore
+    private val modelStore: HomeModelStore,
+    private val pagingSource: CharactersPagingSource
 ) : IntentFactory<HomeViewEvents, Flow<HomeState>> {
     override fun process(viewEvent: HomeViewEvents) {
         Log.d("callback", viewEvent.toString())
@@ -26,18 +26,30 @@ class HomeViewIntentFactory @Inject constructor(
         return when (viewEvent) {
             is HomeViewEvents.OnCharacterSelected -> OpenCharacterDeatil(viewEvent.character)
             HomeViewEvents.RETRY -> RetryIntent()
+            HomeViewEvents.START -> StartIntent()
+        }
+    }
+
+    private fun StartIntent(): Intent<HomeState> {
+        return intent {
+            copy(state = HomeState.State.IDEL(),
+                paging = Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = true),
+                    pagingSourceFactory = { pagingSource }
+                ).flow)
         }
     }
 
     private fun RetryIntent(): Intent<HomeState> {
         return intent {
-            copy(state = HomeState.State.RETRY(count = (0..1000).random())) // work around stateflow doesn't emit same value need to enable user to retry multiple times
+            copy(state = HomeState.State.RETRY())
         }
     }
 
     private fun OpenCharacterDeatil(character: Character): Intent<HomeState> {
         return intent {
-            copy(state = HomeState.State.NAVIGATE(character,(0..1000).random())) // work around stateflow doesn't emit same value need to enable user to retry multiple times
+            copy(
+                state = HomeState.State.NAVIGATE(character)
+            )
         }
     }
 
@@ -54,12 +66,7 @@ class HomeViewIntentFactory @Inject constructor(
     }
 
 
-    override fun modelState(cacheIn: CoroutineScope?): Flow<HomeState> {
-        cacheIn?.launch {
-            modelStore.modelState().collect {
-                it.paging.cachedIn(this)
-            }
-        }
+    override fun modelState(): Flow<HomeState> {
         return modelStore.modelState()
     }
 

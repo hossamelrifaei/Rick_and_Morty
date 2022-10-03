@@ -3,6 +3,7 @@ package com.example.rickandmorty.presentaion.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import androidx.recyclerview.widget.ConcatAdapter
 import com.example.rickandmorty.common.StateSubscriber
 import com.example.rickandmorty.presentaion.home.adapter.CharacterPagingAdapter
@@ -25,7 +26,7 @@ class HomeViewModel @Inject constructor(
     val concatAdapter: ConcatAdapter = adapter.withLoadStateFooter(loadingAdapter)
 
     init {
-        factory.modelState(cacheIn = viewModelScope).subscribeToState().launchIn(viewModelScope)
+        factory.modelState().subscribeToState().launchIn(viewModelScope)
     }
 
     fun process(event: HomeViewEvents) {
@@ -37,10 +38,10 @@ class HomeViewModel @Inject constructor(
 
         Log.d("STATE",model.state.toString())
         when (model.state) {
-            is HomeState.State.NAVIGATE -> Log.d("EVENT", "NAVIGATE")
+            is HomeState.State.NAVIGATE -> Log.d("EVENT", model.state.character.name)
             is HomeState.State.RETRY -> adapter.retry()
-            HomeState.State.IDEL -> viewModelScope.launch {
-                model.paging.collect {
+            is HomeState.State.IDEL -> viewModelScope.launch {
+                model.paging?.cachedIn(this)?.collect {
                     adapter.submitData(it)
                 }
             }
