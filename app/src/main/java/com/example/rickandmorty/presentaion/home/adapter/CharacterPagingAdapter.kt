@@ -6,20 +6,19 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.example.rickandmorty.databinding.CharacterItemBinding
 import com.example.rickandmorty.presentaion.home.Character
-import com.example.rickandmorty.presentaion.home.HomeViewEvents
 import com.example.rickandmorty.presentaion.home.HomeViewIntentFactory
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 
 @ViewModelScoped
-class CharacterPagingAdapter @Inject constructor(
+open class CharacterPagingAdapter @Inject constructor(
     private val factory: HomeViewIntentFactory,
 ) : PagingDataAdapter<Character, CharacterVH>(CHARACTER_DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterVH {
         val binding =
             CharacterItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return CharacterVH(binding,factory)
+        return CharacterVH(binding, factory)
     }
 
 

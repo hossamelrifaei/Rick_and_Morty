@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 
 @ViewModelScoped
-class HomeViewIntentFactory @Inject constructor(
+open class HomeViewIntentFactory @Inject constructor(
     private val modelStore: HomeModelStore,
     private val pagingSource: CharactersPagingSource
 ) : IntentFactory<HomeViewEvents, Flow<HomeState>> {

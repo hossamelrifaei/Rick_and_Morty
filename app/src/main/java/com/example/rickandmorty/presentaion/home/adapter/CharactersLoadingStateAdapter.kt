@@ -13,7 +13,7 @@ import javax.inject.Inject
 
 
 @ViewModelScoped
-class CharactersLoadingStateAdapter @Inject constructor(
+open class CharactersLoadingStateAdapter @Inject constructor(
     val factory: HomeViewIntentFactory,
 ) : LoadStateAdapter<LoadingItemVH>() {
 
@@ -24,7 +24,8 @@ class CharactersLoadingStateAdapter @Inject constructor(
                     .inflate(R.layout.loading_error_retry_item, parent, false)
             )
         ) {
-            factory.process(HomeViewEvents.RETRY) }
+            factory.process(HomeViewEvents.RETRY)
+        }
 
     override fun onBindViewHolder(holder: LoadingItemVH, loadState: LoadState) =
         holder.bind(loadState)

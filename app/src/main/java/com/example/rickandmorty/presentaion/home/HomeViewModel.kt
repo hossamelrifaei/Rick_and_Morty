@@ -7,8 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import androidx.recyclerview.widget.ConcatAdapter
 import com.example.rickandmorty.common.StateSubscriber
-import com.example.rickandmorty.presentaion.home.adapter.CharacterPagingAdapter
-import com.example.rickandmorty.presentaion.home.adapter.CharactersLoadingStateAdapter
+import com.example.rickandmorty.presentaion.home.adapter.LoadingAdapter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
@@ -19,16 +18,17 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val factory: HomeViewIntentFactory,
-    private val adapter: CharacterPagingAdapter,
-    private val loadingAdapter: CharactersLoadingStateAdapter
+    private val adapter: LoadingAdapter,
 ) : ViewModel(), StateSubscriber<HomeState> {
+
     private val _concatAdapter: MutableLiveData<ConcatAdapter> = MutableLiveData<ConcatAdapter>()
     val concatAdapter: LiveData<ConcatAdapter> = _concatAdapter
+
 
     init {
         factory.modelState().subscribeToState().launchIn(viewModelScope)
         factory.process(HomeViewEvents.START)
-        _concatAdapter.value = adapter.withLoadStateFooter(loadingAdapter)
+        _concatAdapter.value = adapter.addLoadingAdapter()
     }
 
     fun process(event: HomeViewEvents) {
@@ -39,16 +39,17 @@ class HomeViewModel @Inject constructor(
         //todo filtering
         when (model.state) {
             is HomeState.State.NAVIGATE -> {} //todo character detail screen
-            is HomeState.State.RETRY -> adapter.retry()
+            is HomeState.State.RETRY -> adapter.doRetry()
             is HomeState.State.IDEL -> viewModelScope.launch {
                 model.paging?.cachedIn(this)?.collect {
-                    adapter.submitData(it)
+                    adapter.doSubmitData(it)
                 }
             }
         }
     }
 
-    override fun onCleared() {
+
+    public override fun onCleared() {
         super.onCleared()
         factory.close()
     }

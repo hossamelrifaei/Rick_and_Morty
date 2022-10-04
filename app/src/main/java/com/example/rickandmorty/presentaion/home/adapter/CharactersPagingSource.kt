@@ -10,7 +10,7 @@ import retrofit2.HttpException
 import javax.inject.Inject
 
 @ViewModelScoped
-class CharactersPagingSource @Inject constructor(val charactersUsecase: GetCharactersUsecase) :
+open class CharactersPagingSource @Inject constructor(val charactersUsecase: GetCharactersUsecase) :
     PagingSource<Int, Character>() {
     override fun getRefreshKey(state: PagingState<Int, Character>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
