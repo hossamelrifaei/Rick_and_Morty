@@ -5,7 +5,7 @@ import com.bumptech.glide.Glide
 import com.example.rickandmorty.R
 
 
-fun AppCompatImageView.load(url: String?, width: Int, height: Int) {
+fun AppCompatImageView.load(url: String?) {
     Glide.with(this.context)
         .load(url)
         .centerCrop()

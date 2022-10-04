@@ -1,6 +1,6 @@
 package com.example.rickandmorty.presentaion.home
 
-import com.example.rickandmorty.common.ModelStoreImpl
+import com.example.mvi.common.ModelStoreImpl
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 

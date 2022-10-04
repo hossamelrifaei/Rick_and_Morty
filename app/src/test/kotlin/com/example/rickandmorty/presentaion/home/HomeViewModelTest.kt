@@ -7,12 +7,14 @@ import com.example.rickandmorty.presentaion.home.adapter.LoadingAdapter
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import model.Character
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
@@ -28,6 +30,42 @@ class HomeViewModelTest {
     val factory: HomeViewIntentFactory = mock()
     val adapter: LoadingAdapter = mock()
 
+
+
+    /**Should close the factory*/
+    @Test
+    fun onClearedShouldCloseTheFactory() {
+        val homeState = HomeState(HomeState.State.IDEL(), flowOf(PagingData.empty()))
+        val flow = flowOf(homeState)
+        whenever(factory.modelState()).thenReturn(flow)
+        val viewModel = HomeViewModel(factory, adapter)
+        viewModel.onCleared()
+        verify(factory).close()
+    }
+
+    /**Should call factory.process when the event is start*/
+    @Test
+    fun processWhenEventIsStartThenCallFactoryProcess() {
+        val homeState = HomeState(HomeState.State.IDEL(), flowOf(PagingData.empty()))
+        val flow = flowOf(homeState)
+        whenever(factory.modelState()).thenReturn(flow)
+
+        val viewModel = HomeViewModel(factory, adapter)
+        viewModel.process(HomeViewEvents.START)
+
+        verify(factory, times(2)).process(HomeViewEvents.START)
+    }
+
+    /**Should call factory.process when the event is retry*/
+    @Test
+    fun processWhenEventIsRetryThenCallFactoryProcess() {
+        val homeState = HomeState(HomeState.State.IDEL(), flowOf(PagingData.empty()))
+        val flow = flowOf(homeState)
+        whenever(factory.modelState()).thenReturn(flow)
+        val viewModel = HomeViewModel(factory, adapter)
+        viewModel.process(HomeViewEvents.RETRY)
+        verify(factory).process(HomeViewEvents.RETRY)
+    }
 
     /**Should retry when the state is retry*/
     @Test

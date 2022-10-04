@@ -2,9 +2,9 @@ package com.example.rickandmorty.di
 
 
 import com.example.rickandmorty.BuildConfig
-import com.example.rickandmorty.data.api.RickAndMortyApi
-import com.example.rickandmorty.data.repo.RickAndMortyRepositoryImpl
-import com.example.rickandmorty.domain.repo.RickAndMortyRepository
+import com.example.data.api.RickAndMortyApi
+import com.example.data.repo.RickAndMortyRepositoryImpl
+import com.example.data.repo.RickAndMortyRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

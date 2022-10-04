@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.example.rickandmorty.databinding.CharacterItemBinding
-import com.example.rickandmorty.presentaion.home.Character
+import model.Character
 import com.example.rickandmorty.presentaion.home.HomeViewIntentFactory
 import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject

@@ -2,12 +2,13 @@ package com.example.rickandmorty.presentaion.home
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import com.example.rickandmorty.common.Intent
-import com.example.rickandmorty.common.IntentFactory
-import com.example.rickandmorty.common.intent
+import com.example.mvi.common.Intent
+import com.example.mvi.common.IntentFactory
+import com.example.mvi.common.intent
 import com.example.rickandmorty.presentaion.home.adapter.CharactersPagingSource
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
+import model.Character
 import javax.inject.Inject
 
 

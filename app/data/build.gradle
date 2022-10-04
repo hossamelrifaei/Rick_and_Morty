@@ -1,0 +1,18 @@
+plugins {
+    id "com.android.library"
+    id "kotlin-android"
+    id 'kotlin-kapt'
+}
+android {
+
+    compileSdkVersion 33
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.google.dagger:hilt-android:2.44'
+    kapt 'com.google.dagger:hilt-compiler:2.44'
+}

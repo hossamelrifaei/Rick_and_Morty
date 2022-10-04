@@ -6,15 +6,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.example.rickandmorty.common.ViewEvent
+import com.example.mvi.common.ViewEvent
 import com.example.rickandmorty.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 
 
@@ -54,9 +53,6 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
 
 
     @OptIn(FlowPreview::class)
-    override fun viewEvents(): Flow<HomeViewEvents> {
-        val flows = listOf<Flow<HomeViewEvents>>()
-        return flows.asFlow().flattenConcat()
-    }
+    override fun viewEvents(): Flow<HomeViewEvents> = listOf<Flow<HomeViewEvents>>().merge()
 
 }

@@ -2,9 +2,9 @@ package com.example.rickandmorty.presentaion.home.adapter
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.example.rickandmorty.domain.repo.usecases.GetCharactersUsecase
-import com.example.rickandmorty.presentaion.home.Character
+import com.example.domain.GetCharactersUsecase
 import dagger.hilt.android.scopes.ViewModelScoped
+import model.Character
 import okio.IOException
 import retrofit2.HttpException
 import javax.inject.Inject

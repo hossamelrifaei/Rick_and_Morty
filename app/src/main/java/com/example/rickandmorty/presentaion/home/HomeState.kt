@@ -2,6 +2,7 @@ package com.example.rickandmorty.presentaion.home
 
 import androidx.paging.PagingData
 import kotlinx.coroutines.flow.Flow
+import model.Character
 
 
 data class HomeState(

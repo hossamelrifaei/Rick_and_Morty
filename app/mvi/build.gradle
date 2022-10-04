@@ -1,0 +1,16 @@
+plugins {
+    id "com.android.library"
+    id "kotlin-android"
+}
+android {
+
+
+    compileSdkVersion 33
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    testImplementation 'junit:junit:4.13.2'
+}
