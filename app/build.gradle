@@ -22,6 +22,7 @@ android {
             buildConfigField "String", "BASE_URL", "\"https://rickandmortyapi.com/\""
         }
         release {
+            buildConfigField "String", "BASE_URL", "\"https://rickandmortyapi.com/\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

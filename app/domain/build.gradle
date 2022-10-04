@@ -12,4 +12,5 @@ dependencies {
     implementation 'com.google.dagger:hilt-android:2.44'
     implementation project(path: ':app:data')
     kapt 'com.google.dagger:hilt-compiler:2.44'
+    testImplementation 'junit:junit:4.13.2'
 }
