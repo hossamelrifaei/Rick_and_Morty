@@ -10,8 +10,9 @@ import retrofit2.HttpException
 import javax.inject.Inject
 
 @ViewModelScoped
-open class CharactersPagingSource @Inject constructor(val charactersUsecase: GetCharactersUsecase) :
+open class CharactersPagingSource @Inject constructor(private val charactersUsecase: GetCharactersUsecase) :
     PagingSource<Int, Character>() {
+
     override fun getRefreshKey(state: PagingState<Int, Character>): Int? {
         return state.anchorPosition?.let { anchorPosition ->
             state.closestPageToPosition(anchorPosition)?.prevKey?.plus(1)
@@ -37,5 +38,4 @@ open class CharactersPagingSource @Inject constructor(val charactersUsecase: Get
             return LoadResult.Error(exception)
         }
     }
-
 }

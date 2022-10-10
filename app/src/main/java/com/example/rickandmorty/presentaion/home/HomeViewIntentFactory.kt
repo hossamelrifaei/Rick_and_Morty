@@ -2,12 +2,18 @@ package com.example.rickandmorty.presentaion.home
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.example.mvi.common.Intent
 import com.example.mvi.common.IntentFactory
 import com.example.mvi.common.intent
+import com.example.mvi.common.sideEffect
 import com.example.rickandmorty.presentaion.home.adapter.CharactersPagingSource
 import dagger.hilt.android.scopes.ViewModelScoped
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import model.Character
 import javax.inject.Inject
 
@@ -25,18 +31,20 @@ open class HomeViewIntentFactory @Inject constructor(
         return when (viewEvent) {
             is HomeViewEvents.OnCharacterSelected -> OpenCharacterDeatil(viewEvent.character)
             HomeViewEvents.RETRY -> RetryIntent()
-            HomeViewEvents.START -> StartIntent()
+            is HomeViewEvents.START -> viewEvent.scope.startIntent()
         }
     }
 
-    private fun StartIntent(): Intent<HomeState> {
-        return intent {
-            copy(state = HomeState.State.IDEL(),
-                paging = Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = true),
-                    pagingSourceFactory = { pagingSource }
-                ).flow)
+    private fun CoroutineScope.startIntent(): Intent<HomeState> = sideEffect {
+        launch(Dispatchers.IO) {
+            Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+                pagingSourceFactory = { pagingSource }
+            ).flow.cachedIn(this).collectLatest {
+                modelStore.process(intent { copy(state = HomeState.State.IDEL(), paging = it) })
+            }
         }
     }
+
 
     private fun RetryIntent(): Intent<HomeState> {
         return intent {

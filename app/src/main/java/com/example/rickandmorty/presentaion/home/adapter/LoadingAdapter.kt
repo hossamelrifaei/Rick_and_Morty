@@ -2,14 +2,14 @@ package com.example.rickandmorty.presentaion.home.adapter
 
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.ConcatAdapter
+import dagger.hilt.android.scopes.FragmentScoped
 import model.Character
-import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 
-@ViewModelScoped
+@FragmentScoped
 open class LoadingAdapter @Inject constructor(
     private val pagingAdapter: CharacterPagingAdapter,
-    private val loadingStateAdapter: CharactersLoadingStateAdapter
+    private val loadingStateAdapter: CharactersLoadingStateAdapter,
 ) : PagingInterface {
 
     override fun doRetry() {
@@ -20,7 +20,7 @@ open class LoadingAdapter @Inject constructor(
         pagingAdapter.submitData(data)
     }
 
-    override fun addLoadingAdapter(): ConcatAdapter {
-        return pagingAdapter.withLoadStateHeaderAndFooter(loadingStateAdapter, loadingStateAdapter)
+    operator fun invoke(): ConcatAdapter {
+        return pagingAdapter.withLoadStateFooter(loadingStateAdapter)
     }
 }
