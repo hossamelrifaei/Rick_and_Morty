@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 
 @ViewModelScoped
-class HomeModelStore @Inject constructor() : ModelStoreImpl<HomeState>(
+open class HomeModelStore @Inject constructor() : ModelStoreImpl<HomeState>(
     HomeState(
         state = HomeState.State.INITIAL(),
         paging = PagingData.empty()
