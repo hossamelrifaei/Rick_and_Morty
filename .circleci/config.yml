@@ -11,7 +11,7 @@ jobs:
       - checkout
       - android/restore-gradle-cache
       - android/run-tests:
-          test-command: ./gradlew testDebug
+          test-command: ./gradlew testDebugUnitTest
       - android/save-gradle-cache
       - android/create-avd:
           avd-name: myavd
