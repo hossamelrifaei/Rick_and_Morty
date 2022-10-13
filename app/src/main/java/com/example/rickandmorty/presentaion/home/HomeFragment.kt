@@ -16,9 +16,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,6 +31,7 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel by viewModels<HomeViewModel>()
+    private var event: MutableStateFlow<HomeViewEvents> = MutableStateFlow(HomeViewEvents.INITIAL)
 
     @Inject
     lateinit var adapter: LoadingAdapter
@@ -44,7 +47,9 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.charactersList.adapter = adapter()
+        binding.charactersList.adapter = adapter() {
+            event.value = it
+        }
 
         viewModel.state.observe(viewLifecycleOwner) {
             lifecycleScope.launch {
@@ -52,7 +57,7 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
                     when (it.state) {
                         is HomeState.State.IDEL -> adapter.doSubmitData(it.paging)
                         is HomeState.State.NAVIGATE -> {}
-                        is HomeState.State.RETRY -> {}
+                        is HomeState.State.RETRY -> adapter.doRetry()
                         is HomeState.State.INITIAL -> {}
                     }
                 }
@@ -74,6 +79,11 @@ class HomeFragment : Fragment(), ViewEvent<HomeViewEvents> {
 
 
     @OptIn(FlowPreview::class)
-    override fun viewEvents(): Flow<HomeViewEvents> = listOf<Flow<HomeViewEvents>>().merge()
+    override fun viewEvents(): Flow<HomeViewEvents> {
+        val flow = listOf(
+            event
+        )
+        return flow.merge()
+    }
 
 }

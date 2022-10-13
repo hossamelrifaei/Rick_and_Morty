@@ -45,7 +45,7 @@ class HomeViewIntentFactoryTest {
     /**Should call retryintent when the event is retry*/
     @Test
     fun processWhenEventIsRetryThenCallRetryIntent() {
-        homeViewIntentFactory.process(HomeViewEvents.RETRY)
+        homeViewIntentFactory.process(HomeViewEvents.RETRY())
 
         verify(modelStore).process(any())
     }
@@ -64,7 +64,7 @@ class HomeViewIntentFactoryTest {
     @Test
     fun processWhenEventIsStartThenCallStartIntent() {
         val scope: CoroutineScope = mock()
-        val event = HomeViewEvents.START(scope)
+        val event = HomeViewEvents.LOAD(scope)
         homeViewIntentFactory.process(event)
         verify(this.modelStore).process(any())
     }

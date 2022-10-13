@@ -30,10 +30,16 @@ open class HomeViewIntentFactory @Inject constructor(
     private fun toIntent(viewEvent: HomeViewEvents): Intent<HomeState> {
         return when (viewEvent) {
             is HomeViewEvents.OnCharacterSelected -> OpenCharacterDeatil(viewEvent.character)
-            HomeViewEvents.RETRY -> RetryIntent()
-            is HomeViewEvents.START -> viewEvent.scope.startIntent()
+            is HomeViewEvents.RETRY -> RetryIntent()
+            is HomeViewEvents.LOAD -> viewEvent.scope.startIntent()
+            HomeViewEvents.INITIAL -> nothingIntent()
         }
     }
+
+    private fun nothingIntent(): Intent<HomeState> = sideEffect {
+
+    }
+
 
     private fun CoroutineScope.startIntent(): Intent<HomeState> = sideEffect {
         launch(Dispatchers.IO) {
@@ -48,7 +54,7 @@ open class HomeViewIntentFactory @Inject constructor(
 
     private fun RetryIntent(): Intent<HomeState> {
         return intent {
-            copy(state = HomeState.State.RETRY())
+            copy(state = HomeState.State.RETRY)
         }
     }
 

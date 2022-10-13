@@ -10,10 +10,10 @@ data class HomeState(
     val paging: PagingData<Character>
 ) {
     sealed class State {
-        class INITIAL : HomeState.State()
+        object INITIAL : HomeState.State()
         class NAVIGATE(val character: Character) : State()
-        class RETRY : State()
-        class IDEL(val scope: CoroutineScope? = null) : State()
+        object RETRY : State()
+        data class IDEL(val scope: CoroutineScope? = null) : State()
     }
 }
 

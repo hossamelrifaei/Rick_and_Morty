@@ -24,7 +24,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         factory.modelState().subscribeToState().launchIn(viewModelScope)
-        factory.process(HomeViewEvents.START(viewModelScope))
+        factory.process(HomeViewEvents.LOAD(viewModelScope))
     }
 
     fun process(event: HomeViewEvents) {
@@ -37,8 +37,8 @@ class HomeViewModel @Inject constructor(
 
 
     public override fun onCleared() {
-        super.onCleared()
         factory.close()
+        super.onCleared()
     }
 }
 

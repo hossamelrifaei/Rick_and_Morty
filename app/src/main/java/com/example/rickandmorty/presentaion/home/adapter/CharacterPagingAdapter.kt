@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.example.rickandmorty.databinding.CharacterItemBinding
+import com.example.rickandmorty.presentaion.home.HomeViewEvents
 import dagger.hilt.android.scopes.FragmentScoped
 import model.Character
 import javax.inject.Inject
@@ -13,15 +14,21 @@ import javax.inject.Inject
 open class CharacterPagingAdapter @Inject constructor(
 ) : PagingDataAdapter<Character, CharacterVH>(CHARACTER_DIFF_CALLBACK) {
 
+    lateinit var listener: AdapterEventListener<HomeViewEvents>
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CharacterVH {
         val binding =
             CharacterItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return CharacterVH(binding)
+        return CharacterVH(binding) { listener.onEvent(it) }
     }
 
 
     override fun onBindViewHolder(holder: CharacterVH, position: Int) {
         getItem(position)?.let { holder.bind(it) }
+    }
+
+    fun addListener(lis: AdapterEventListener<HomeViewEvents>) {
+        listener = lis
     }
 
 

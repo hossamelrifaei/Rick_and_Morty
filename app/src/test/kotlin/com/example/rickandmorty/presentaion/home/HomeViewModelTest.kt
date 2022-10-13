@@ -32,7 +32,7 @@ class HomeViewModelTest {
 
     @Before
     fun setup() {
-        val homeState = HomeState(HomeState.State.INITIAL(), PagingData.empty())
+        val homeState = HomeState(HomeState.State.INITIAL, PagingData.empty())
         val flow = flowOf(homeState)
         whenever(factory.modelState()).thenReturn(flow)
         viewModel = HomeViewModel(factory)
@@ -43,7 +43,7 @@ class HomeViewModelTest {
     fun onClearedShouldCloseTheFactory() {
         viewModel.onCleared()
         verify(factory).close()
-        verify(factory).process(HomeViewEvents.START(viewModel.viewModelScope))
+        verify(factory).process(HomeViewEvents.LOAD(viewModel.viewModelScope))
         verify(factory).modelState()
         verifyNoMoreInteractions(factory)
     }
@@ -52,21 +52,10 @@ class HomeViewModelTest {
     @Test
     fun processWhenEventIsStartThenCallFactoryProcess() {
 
-        viewModel.process(HomeViewEvents.START(viewModel.viewModelScope))
+        viewModel.process(HomeViewEvents.LOAD(viewModel.viewModelScope))
 
-        verify(factory, times(2)).process(HomeViewEvents.START(viewModel.viewModelScope))
+        verify(factory, times(2)).process(HomeViewEvents.LOAD(viewModel.viewModelScope))
         verify(factory).modelState()
-        verifyNoMoreInteractions(factory)
-    }
-
-    /**Should call factory.process when the event is retry*/
-    @Test
-    fun processWhenEventIsRetryThenCallFactoryProcess() {
-        viewModel.process(HomeViewEvents.RETRY)
-
-        verify(factory).process(HomeViewEvents.START(viewModel.viewModelScope))
-        verify(factory).modelState()
-        verify(factory).process(HomeViewEvents.RETRY)
         verifyNoMoreInteractions(factory)
     }
 }

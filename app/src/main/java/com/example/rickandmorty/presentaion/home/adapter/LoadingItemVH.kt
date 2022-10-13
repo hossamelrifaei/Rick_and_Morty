@@ -4,10 +4,11 @@ import androidx.core.view.isVisible
 import androidx.paging.LoadState
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmorty.databinding.LoadingErrorRetryItemBinding
+import com.example.rickandmorty.presentaion.home.HomeViewEvents
 
 class LoadingItemVH(
     private val binding: LoadingErrorRetryItemBinding,
-    private val function: () -> Unit
+    private val function: (HomeViewEvents) -> Unit
 ) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(state: LoadState) {
@@ -15,7 +16,7 @@ class LoadingItemVH(
             progressBar.isVisible = state is LoadState.Loading
             retryButton.isVisible = state is LoadState.Error
             retryButton.setOnClickListener {
-                function.invoke()
+                function.invoke(HomeViewEvents.RETRY())
             }
         }
     }
