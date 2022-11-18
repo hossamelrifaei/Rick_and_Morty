@@ -1,7 +1,9 @@
 package com.example.rickandmorty.presentaion.home
 
 import android.util.Log
-import com.example.domain.GetCharactersUsecaseFlow
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import com.example.mvi.common.Intent
 import com.example.mvi.common.IntentFactory
 import com.example.mvi.common.asyncIntent
@@ -10,9 +12,7 @@ import com.example.rickandmorty.presentaion.home.adapter.CharactersPagingSource
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.zip
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import model.Character
 import javax.inject.Inject
@@ -21,7 +21,6 @@ import javax.inject.Inject
 @ViewModelScoped
 open class HomeViewIntentFactory @Inject constructor(
     private val modelStore: HomeModelStore,
-    private val charactersUsecase: GetCharactersUsecaseFlow,
     private val pagingSource: CharactersPagingSource
 ) : IntentFactory<HomeViewEvents, HomeState, HomeState.HomeSideEffect>(modelStore) {
 
@@ -48,28 +47,14 @@ open class HomeViewIntentFactory @Inject constructor(
     private fun CoroutineScope.startIntent(): Intent<HomeState> =
         asyncIntent {
 
-//            Log.d("INTENT", "startIntent")
             launch(Dispatchers.IO) {
 
-
-                charactersUsecase(1).zip(charactersUsecase(100)) { first, second ->
-                    copy(firstResult = first, secondResult = second)
-
-                }.onEach {
-                    chainedIntent { it }
-                }.launchIn(this)
+                Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+                    pagingSourceFactory = { pagingSource }
+                ).flow.cachedIn(this).collectLatest {
+                    chainedIntent { copy(state = HomeState.State.IDEL(count + 1), paging = it) }
+                }
             }
-
-//            launch(Dispatchers.IO) {
-//
-//                Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = false),
-//                    pagingSourceFactory = { pagingSource }
-//                ).flow.cachedIn(this).collectLatest {
-//                    chainedIntent { copy(state = HomeState.State.IDEL(count + 1), paging = it) }
-//                }
-//
-//
-//            }
         }
 
 
