@@ -1,18 +1,18 @@
 package com.example.rickandmorty.presentaion.home
 
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
-import androidx.paging.cachedIn
+import android.util.Log
+import com.example.domain.GetCharactersUsecaseFlow
 import com.example.mvi.common.Intent
 import com.example.mvi.common.IntentFactory
+import com.example.mvi.common.asyncIntent
 import com.example.mvi.common.intent
-import com.example.mvi.common.sideEffect
 import com.example.rickandmorty.presentaion.home.adapter.CharactersPagingSource
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import model.Character
 import javax.inject.Inject
@@ -21,69 +21,79 @@ import javax.inject.Inject
 @ViewModelScoped
 open class HomeViewIntentFactory @Inject constructor(
     private val modelStore: HomeModelStore,
+    private val charactersUsecase: GetCharactersUsecaseFlow,
     private val pagingSource: CharactersPagingSource
-) : IntentFactory<HomeViewEvents, Flow<HomeState>> {
-    override fun process(viewEvent: HomeViewEvents) {
-        modelStore.process(toIntent(viewEvent))
-    }
+) : IntentFactory<HomeViewEvents, HomeState, HomeState.HomeSideEffect>(modelStore) {
 
-    private fun toIntent(viewEvent: HomeViewEvents): Intent<HomeState> {
-        return when (viewEvent) {
-            is HomeViewEvents.OnCharacterSelected -> OpenCharacterDeatil(viewEvent.character)
-            is HomeViewEvents.RETRY -> RetryIntent()
-            is HomeViewEvents.LOAD -> viewEvent.scope.startIntent()
+    override fun toIntent(event: HomeViewEvents): Intent<HomeState> {
+        return when (event) {
+            is HomeViewEvents.OnCharacterSelected -> openCharacterDetail(event.character)
+            is HomeViewEvents.RETRY -> retryIntent()
+            is HomeViewEvents.LOAD -> event.scope.startIntent()
             HomeViewEvents.INITIAL -> nothingIntent()
+            is HomeViewEvents.INCREMENT -> incremnt()
+
         }
     }
 
-    private fun nothingIntent(): Intent<HomeState> = sideEffect {
+    private fun incremnt(): Intent<HomeState> = asyncIntent {
+        Log.d("INTENT", "incremnt")
+    }
 
+    private fun nothingIntent(): Intent<HomeState> = asyncIntent {
+        Log.d("INTENT", "nothingIntent")
     }
 
 
-    private fun CoroutineScope.startIntent(): Intent<HomeState> = sideEffect {
-        launch(Dispatchers.IO) {
-            Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = false),
-                pagingSourceFactory = { pagingSource }
-            ).flow.cachedIn(this).collectLatest {
-                modelStore.process(intent { copy(state = HomeState.State.IDEL(), paging = it) })
+    private fun CoroutineScope.startIntent(): Intent<HomeState> =
+        asyncIntent {
+
+//            Log.d("INTENT", "startIntent")
+            launch(Dispatchers.IO) {
+
+
+                charactersUsecase(1).zip(charactersUsecase(100)) { first, second ->
+                    copy(firstResult = first, secondResult = second)
+
+                }.onEach {
+                    chainedIntent { it }
+                }.launchIn(this)
             }
+
+//            launch(Dispatchers.IO) {
+//
+//                Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = false),
+//                    pagingSourceFactory = { pagingSource }
+//                ).flow.cachedIn(this).collectLatest {
+//                    chainedIntent { copy(state = HomeState.State.IDEL(count + 1), paging = it) }
+//                }
+//
+//
+//            }
         }
-    }
 
 
-    private fun RetryIntent(): Intent<HomeState> {
+    private fun retryIntent(): Intent<HomeState> {
         return intent {
             copy(state = HomeState.State.RETRY)
         }
     }
 
-    private fun OpenCharacterDeatil(character: Character): Intent<HomeState> {
-        return intent {
-            copy(
-                state = HomeState.State.NAVIGATE(character)
-            )
-        }
+    fun openCharacterDetail(character: Character):
+        Intent<HomeState> {
+
+        sideEffect(HomeState.HomeSideEffect.SIDEEFFECT1)
+        sideEffect(HomeState.HomeSideEffect.SIDEEFFECT2)
+        sideEffect(HomeState.HomeSideEffect.SIDEEFFECT3)
+        return intent { copy() }
     }
 
-
-    private fun chainedIntent(block: HomeState.() -> HomeState) =
-        modelStore.process(intent(block))
-
     private fun onSuccess(results: List<Character>) = chainedIntent {
-        copy()
+        copy(count = count + 1)
     }
 
     private fun onError(throwable: Throwable) = chainedIntent {
         copy()
     }
 
-
-    override fun modelState(): Flow<HomeState> {
-        return modelStore.modelState()
-    }
-
-    override fun close() {
-        modelStore.close()
-    }
 }

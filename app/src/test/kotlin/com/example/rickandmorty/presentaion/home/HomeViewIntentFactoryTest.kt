@@ -3,69 +3,151 @@ package com.example.rickandmorty.presentaion.home
 import androidx.paging.PagingData
 import com.example.rickandmorty.presentaion.home.adapter.CharactersPagingSource
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.runBlocking
 import model.Character
-import org.junit.After
+import model.LocationModel
+import model.OriginModel
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoMoreInteractions
-import org.mockito.kotlin.whenever
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
-@RunWith(MockitoJUnitRunner::class)
+
 class HomeViewIntentFactoryTest {
-    lateinit var homeViewIntentFactory: HomeViewIntentFactory
-    val pagingSource: CharactersPagingSource = mock()
-    val modelStore: HomeModelStore = mock()
+    private lateinit var homeViewIntentFactory: HomeViewIntentFactory;
+    private val pagingSource: CharactersPagingSource = mock()
+    private val modelStore: HomeModelStore = mock()
+
+    // Swaps out AndroidSchedulers.mainThread() for trampoline scheduler.
+    @get:Rule
+    val coroutineContext = MainDispatcherRule()
 
 
-    /**Should return the state of the model*/
+    /**Should track the character name*/
     @Test
-    fun modelStateShouldReturnTheStateOfTheModel() {
+    fun openCharacterDetailShouldTrackTheCharacterName() {
+        val character = model.Character(
+            id = 1,
+            name = "Rick Sanchez",
+            status = "Alive",
+            species = "Human",
+            type = "",
+            gender = "Male",
+            origin = OriginModel(name = "Earth (C-137)", url = ""),
+            location = LocationModel(name = "Earth (Replacement Dimension)", url = ""),
+            image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+            episode = arrayListOf("https://rickandmortyapi.com/api/episode/1"),
+            url = "https://rickandmortyapi.com/api/character/1",
+            created = "2017-11-04T18:48:46.250Z"
+        )
 
-        homeViewIntentFactory.modelState()
 
-        verify(modelStore).modelState()
+        val homeViewIntentFactory = HomeViewIntentFactory(
+            modelStore, pagingSource
+        )
+
+        homeViewIntentFactory.toIntent(HomeViewEvents.OnCharacterSelected(character))
+
+
+    }
+
+    /**Should navigate to the character detail screen*/
+    @Test
+    fun openCharacterDetailShouldNavigateToTheCharacterDetailScreen() {
+        val character = Character(
+            id = 1,
+            name = "Rick Sanchez",
+            status = "Alive",
+            species = "Human",
+            type = "",
+            gender = "Male",
+            origin = OriginModel(name = "Earth (C-137)", url = ""),
+            location = LocationModel(name = "Earth (Replacement Dimension)", url = ""),
+            image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+            episode = arrayListOf("https://rickandmortyapi.com/api/episode/1"),
+            url = "https://rickandmortyapi.com/api/character/1",
+            created = "2017-11-04T18:48:46.250Z"
+        )
+
+        val intentFactory = HomeViewIntentFactory(mock(), mock())
+
+        val intent = intentFactory.openCharacterDetail(character)
+
+        assertNotNull(intent)
+        assertTrue { intent.sideEffect is HomeState.HomeSideEffect.NAVIGATE }
+        assertEquals((intent.sideEffect as HomeState.HomeSideEffect.NAVIGATE).character, character)
+
+        val sideEffectIntent = intent
+
+        assertNotNull(sideEffectIntent.sideEffect)
+        assertTrue { sideEffectIntent.sideEffect is HomeState.HomeSideEffect.NAVIGATE }
+
+        val navigateSideEffect = sideEffectIntent.sideEffect as HomeState.HomeSideEffect.NAVIGATE
+
+        assertEquals(character, navigateSideEffect.character)
+    }
+
+    /**Should return an error when the request is failed*/
+    @Test
+    fun startIntentWhenRequestIsFailedThenReturnError() {
+        val scope = CoroutineScope(coroutineContext.testDispatcher)
+
+        homeViewIntentFactory.process(HomeViewEvents.LOAD(scope))
+
+        verify(modelStore).process(any())
+
+    }
+
+    /**Should return a list of characters when the request is successful*/
+    @Test
+    fun startIntentWhenRequestIsSuccessfulThenReturnListOfCharacters() {
+//        val pagingSource = mock<CharactersPagingSource>()
+//        val modelStore = mock<HomeModelStore>()
+//        val homeViewIntentFactory = HomeViewIntentFactory(modelStore, pagingSource)
+//        val scope = mock<CoroutineScope>()
+//        val intent = homeViewIntentFactory.startIntent(scope)
+//        assertNotNull(intent)
     }
 
     @Before
     fun setUp() {
-        homeViewIntentFactory = HomeViewIntentFactory(this.modelStore, this.pagingSource)
+
+        homeViewIntentFactory =
+            HomeViewIntentFactory(modelStore, pagingSource);
     }
 
-    @After
-    fun tearDown() {
-        verifyNoMoreInteractions(modelStore, pagingSource)
-    }
-
-    /**Should call retryintent when the event is retry*/
+    /**Should return nothingintent when the viewevent is initial*/
     @Test
-    fun processWhenEventIsRetryThenCallRetryIntent() {
-        homeViewIntentFactory.process(HomeViewEvents.RETRY())
-
-        verify(modelStore).process(any())
+    fun toIntentWhenViewEventIsInitialThenReturnNothingIntent() {
+        val intent = homeViewIntentFactory.toIntent(HomeViewEvents.INITIAL);
+        assertNotNull(intent);
     }
 
-    /**Should call opencharacterdeatil when the event is oncharacterselected*/
+    /**Should return retryintent when the viewevent is retry*/
     @Test
-    fun processWhenEventIsOnCharacterSelectedThenCallOpenCharacterDeatil() {
-        val character = Character(1, "", "", "", "", "", null, null, "", arrayListOf(), "", "")
-        val homeViewEvents = HomeViewEvents.OnCharacterSelected(character)
-        homeViewIntentFactory.process(homeViewEvents)
+    fun toIntentWhenViewEventIsRetryThenReturnRetryIntent() {
+        val intent = homeViewIntentFactory.toIntent(HomeViewEvents.RETRY());
+        runBlocking {
+            assertEquals(
+                intent.reduce(HomeState(HomeState.State.IDEL(), PagingData.empty())),
+                HomeState(HomeState.State.RETRY, PagingData.empty())
+            );
+        }
 
-        verify(modelStore).process(any())
     }
 
-    /**Should call startintent when the event is start*/
+    /**Should return opencharacterdeatil intent when the viewevent is oncharacterselected*/
     @Test
-    fun processWhenEventIsStartThenCallStartIntent() {
-        val scope: CoroutineScope = mock()
-        val event = HomeViewEvents.LOAD(scope)
-        homeViewIntentFactory.process(event)
-        verify(this.modelStore).process(any())
+    fun toIntentWhenViewEventIsOnCharacterSelectedThenReturnOpenCharacterDeatil() {
+        val character =
+            model.Character(1, "", "", "", "", "", null, null, "", arrayListOf(), "", "");
+        val intent = homeViewIntentFactory.toIntent(HomeViewEvents.OnCharacterSelected(character));
+        assertTrue(intent.sideEffect is HomeState.HomeSideEffect.NAVIGATE)
+        assertEquals((intent.sideEffect as HomeState.HomeSideEffect.NAVIGATE).character, character)
     }
 }

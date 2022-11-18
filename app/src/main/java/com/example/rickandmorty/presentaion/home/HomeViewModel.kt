@@ -1,38 +1,36 @@
 package com.example.rickandmorty.presentaion.home
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mvi.common.StateSubscriber
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val factory: HomeViewIntentFactory,
-
-    ) : ViewModel(), StateSubscriber<HomeState> {
-
-
-    private val _state: MutableLiveData<HomeState> = MutableLiveData<HomeState>()
-    val state: LiveData<HomeState> = _state
+    val factory: HomeViewIntentFactory,
+) : ViewModel() {
 
 
     init {
-        factory.modelState().subscribeToState().launchIn(viewModelScope)
         factory.process(HomeViewEvents.LOAD(viewModelScope))
+
+
+        factory.subscribe({}, {
+
+            it.onEach {
+                Log.d("effect", it.toString())
+            }.launchIn(viewModelScope)
+
+
+        })
+
     }
 
     fun process(event: HomeViewEvents) {
         factory.process(event)
-    }
-
-    override fun Flow<HomeState>.subscribeToState() = onEach { model ->
-        _state.postValue(model)
     }
 
 
@@ -40,6 +38,10 @@ class HomeViewModel @Inject constructor(
         factory.close()
         super.onCleared()
     }
+
+
 }
+
+
 
 

@@ -1,16 +1,18 @@
 package com.example.mvi.common
 
-interface Intent<T> {
-    suspend fun reduce(oldState: T): T
+interface Intent<STATE> {
+    suspend fun reduce(oldState: STATE): STATE
 }
 
-fun <T> intent(block: T.() -> T) = BlockIntent(block)
-
-class BlockIntent<T>(val block: T.() -> T) : Intent<T> {
-    override suspend fun reduce(oldState: T): T = block(oldState)
+class BlockIntent<STATE>(val block: STATE.() -> STATE) : Intent<STATE> {
+    override suspend fun reduce(oldState: STATE): STATE = block(oldState)
 }
 
-fun <T> sideEffect(block: T.() -> Unit): Intent<T> = object :
-    Intent<T> {
-    override suspend fun reduce(oldState: T): T = oldState.apply(block)
+fun <STATE> intent(block: STATE.() -> STATE) = BlockIntent(block)
+
+fun <STATE> asyncIntent(block: STATE.() -> Unit): Intent<STATE> = object :
+    Intent<STATE> {
+    override suspend fun reduce(oldState: STATE): STATE = oldState.apply(block)
 }
+
+fun <STATE> chainedIntent(block: STATE.() -> STATE) = BlockIntent(block)

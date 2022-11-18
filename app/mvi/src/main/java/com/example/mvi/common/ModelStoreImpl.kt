@@ -6,30 +6,46 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.Eagerly
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
-
-open class ModelStoreImpl<S>(startingState: S) : ModelStore<S> {
-    private var scope = CoroutineScope(Dispatchers.IO)
-    private val intents = Channel<Intent<S>>(capacity = Channel.BUFFERED)
+open class ModelStoreImpl<STATE, SIDE_EFFECT>(startingState: STATE) :
+    ModelStore<STATE, SIDE_EFFECT> {
+    private var scope = CoroutineScope(Dispatchers.Main)
+    private val intentChannel = Channel<Intent<STATE>>(Channel.BUFFERED)
     private val store = MutableStateFlow(startingState)
+    private val sideEffectChannel = Channel<SIDE_EFFECT>(Channel.BUFFERED)
+    private val sideEffect: SharedFlow<SIDE_EFFECT> =
+        sideEffectChannel.receiveAsFlow().shareIn(scope, Eagerly)
 
     init {
-        scope.launch { while (isActive) store.update { intents.receive().reduce(store.value) } }
+        scope.launch {
+            while (isActive)
+                store.update { intentChannel.receive().reduce(store.value) }
+        }
     }
 
-    override fun process(intent: Intent<S>) {
-        intents.trySend(intent)
+    override fun process(intent: Intent<STATE>) {
+        intentChannel.trySend(intent)
     }
 
-    override fun modelState(): Flow<S> {
-        return store
+    override fun processSideEffect(sideEffect: SIDE_EFFECT) {
+        sideEffectChannel.trySend(sideEffect)
     }
 
-    fun close() {
+    override fun subscribe(state: (Flow<STATE>) -> Unit, sideEffect: (Flow<SIDE_EFFECT>) -> Unit) {
+        state.invoke(store)
+        sideEffect.invoke(this.sideEffect)
+    }
+
+    override fun close() {
+        intentChannel.close()
+        sideEffectChannel.close()
         scope.cancel()
-        intents.close()
     }
 }

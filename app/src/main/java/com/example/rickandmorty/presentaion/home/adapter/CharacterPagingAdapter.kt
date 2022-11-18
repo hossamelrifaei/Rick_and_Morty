@@ -22,7 +22,6 @@ open class CharacterPagingAdapter @Inject constructor(
         return CharacterVH(binding) { listener.onEvent(it) }
     }
 
-
     override fun onBindViewHolder(holder: CharacterVH, position: Int) {
         getItem(position)?.let { holder.bind(it) }
     }

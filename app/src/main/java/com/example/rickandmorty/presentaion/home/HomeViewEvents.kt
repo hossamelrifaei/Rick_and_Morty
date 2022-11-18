@@ -5,7 +5,9 @@ import model.Character
 
 sealed class HomeViewEvents {
     object INITIAL : HomeViewEvents()
+    class INCREMENT : HomeViewEvents()
+
     class RETRY : HomeViewEvents()
     data class LOAD(val scope: CoroutineScope) : HomeViewEvents()
-     class OnCharacterSelected(val character: Character) : HomeViewEvents()
+    class OnCharacterSelected(val character: Character) : HomeViewEvents()
 }

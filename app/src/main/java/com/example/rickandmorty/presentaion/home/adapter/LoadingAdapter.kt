@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.ConcatAdapter
 import com.example.rickandmorty.presentaion.home.HomeViewEvents
 import dagger.hilt.android.scopes.FragmentScoped
 import model.Character
+import java.lang.StrictMath.pow
 import javax.inject.Inject
 
 @FragmentScoped
@@ -36,5 +37,12 @@ open class LoadingAdapter @Inject constructor(
 
     override fun onEvent(event: HomeViewEvents) {
         function.invoke(event)
+    }
+    fun toDecimal(binaryNumber : String) : Int {
+        var sum = 0
+        binaryNumber.reversed().forEachIndexed {
+                k, v -> sum += v.toString().toInt() * pow(2.0, k.toDouble()).toInt()
+        }
+        return sum
     }
 }
