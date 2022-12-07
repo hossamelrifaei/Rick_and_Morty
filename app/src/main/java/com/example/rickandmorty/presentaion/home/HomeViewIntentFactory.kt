@@ -1,6 +1,7 @@
 package com.example.rickandmorty.presentaion.home
 
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
@@ -9,16 +10,14 @@ import com.example.mvi.common.IntentFactory
 import com.example.mvi.common.asyncIntent
 import com.example.mvi.common.intent
 import com.example.rickandmorty.presentaion.home.adapter.CharactersPagingSource
-import dagger.hilt.android.scopes.ViewModelScoped
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import model.Character
 import javax.inject.Inject
 
 
-@ViewModelScoped
+@HiltViewModel
 open class HomeViewIntentFactory @Inject constructor(
     private val modelStore: HomeModelStore,
     private val pagingSource: CharactersPagingSource
@@ -28,27 +27,14 @@ open class HomeViewIntentFactory @Inject constructor(
         return when (event) {
             is HomeViewEvents.OnCharacterSelected -> openCharacterDetail(event.character)
             is HomeViewEvents.RETRY -> retryIntent()
-            is HomeViewEvents.LOAD -> event.scope.startIntent()
-            HomeViewEvents.INITIAL -> nothingIntent()
-            is HomeViewEvents.INCREMENT -> incremnt()
-
+            is HomeViewEvents.LOAD -> startIntent()
         }
     }
 
-    private fun incremnt(): Intent<HomeState> = asyncIntent {
-        Log.d("INTENT", "incremnt")
-    }
-
-    private fun nothingIntent(): Intent<HomeState> = asyncIntent {
-        Log.d("INTENT", "nothingIntent")
-    }
-
-
-    private fun CoroutineScope.startIntent(): Intent<HomeState> =
+    private fun startIntent(): Intent<HomeState> =
         asyncIntent {
 
-            launch(Dispatchers.IO) {
-
+            viewModelScope.launch {
                 Pager(config = PagingConfig(pageSize = 20, enablePlaceholders = false),
                     pagingSourceFactory = { pagingSource }
                 ).flow.cachedIn(this).collectLatest {
@@ -56,7 +42,6 @@ open class HomeViewIntentFactory @Inject constructor(
                 }
             }
         }
-
 
     private fun retryIntent(): Intent<HomeState> {
         return intent {
@@ -66,19 +51,9 @@ open class HomeViewIntentFactory @Inject constructor(
 
     fun openCharacterDetail(character: Character):
         Intent<HomeState> {
-
         sideEffect(HomeState.HomeSideEffect.SIDEEFFECT1)
         sideEffect(HomeState.HomeSideEffect.SIDEEFFECT2)
         sideEffect(HomeState.HomeSideEffect.SIDEEFFECT3)
         return intent { copy() }
     }
-
-    private fun onSuccess(results: List<Character>) = chainedIntent {
-        copy(count = count + 1)
-    }
-
-    private fun onError(throwable: Throwable) = chainedIntent {
-        copy()
-    }
-
 }

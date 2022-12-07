@@ -41,7 +41,7 @@ class HomeFragment : Fragment(),
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by viewModels<HomeViewModel>()
+    private val viewModel: HomeViewIntentFactory by viewModels()
     private val eventChannel = Channel<HomeViewEvents>(BUFFERED)
     private val event = eventChannel.receiveAsFlow()
 
@@ -68,20 +68,20 @@ class HomeFragment : Fragment(),
 
         lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewEvents().onEach { viewModel.factory.process(it) }
+
+                viewEvents().onEach { viewModel.process(it) }
                     .launchIn(this)
-                viewModel.factory.subscribe(
+                viewModel.subscribe(
                     { this.subscribeToState(it) },
                     { this.subscribeToSideEffect(it) })
             }
         }
-
+        eventChannel.trySend(HomeViewEvents.LOAD())
 
     }
 
 
     override fun onDestroyView() {
-        eventChannel.trySend(HomeViewEvents.INITIAL)
         binding.charactersList.adapter = null
         _binding = null
         super.onDestroyView()
@@ -125,9 +125,6 @@ class HomeFragment : Fragment(),
                 when (it.state) {
                     is HomeState.State.IDEL -> adapter.doSubmitData(it.paging)
                     is HomeState.State.RETRY -> adapter.doRetry()
-                    is HomeState.State.INITIAL -> {}
-
-
                 }
             }
         }
