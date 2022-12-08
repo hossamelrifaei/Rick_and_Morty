@@ -71,9 +71,11 @@ class HomeFragment : Fragment(),
 
                 viewEvents().onEach { viewModel.process(it) }
                     .launchIn(this)
-                viewModel.subscribe(
-                    { this.subscribeToState(it) },
-                    { this.subscribeToSideEffect(it) })
+                viewModel.subscribeState {
+                    this.subscribeToState(it)
+                }.subscribeSideEffect {
+                    this.subscribeToSideEffect(it)
+                }
             }
         }
         eventChannel.trySend(HomeViewEvents.LOAD())
@@ -88,23 +90,26 @@ class HomeFragment : Fragment(),
     }
 
 
-
     override fun viewEvents(): Flow<HomeViewEvents> {
         val flows = listOf(
-            binding.fab.clicks().map { HomeViewEvents.OnCharacterSelected(Character(
-                id = 1,
-                name = "Rick Sanchez",
-                status = "Alive",
-                species = "Human",
-                type = "",
-                gender = "Male",
-                origin = OriginModel(name = "Earth (C-137)", url = ""),
-                location = LocationModel(name = "Earth (Replacement Dimension)", url = ""),
-                image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                episode = arrayListOf("https://rickandmortyapi.com/api/episode/1"),
-                url = "https://rickandmortyapi.com/api/character/1",
-                created = "2017-11-04T18:48:46.250Z"
-            )) },
+            binding.fab.clicks().map {
+                HomeViewEvents.OnCharacterSelected(
+                    Character(
+                        id = 1,
+                        name = "Rick Sanchez",
+                        status = "Alive",
+                        species = "Human",
+                        type = "",
+                        gender = "Male",
+                        origin = OriginModel(name = "Earth (C-137)", url = ""),
+                        location = LocationModel(name = "Earth (Replacement Dimension)", url = ""),
+                        image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
+                        episode = arrayListOf("https://rickandmortyapi.com/api/episode/1"),
+                        url = "https://rickandmortyapi.com/api/character/1",
+                        created = "2017-11-04T18:48:46.250Z"
+                    )
+                )
+            },
             event
         )
         return flows.merge()
@@ -136,10 +141,10 @@ class HomeFragment : Fragment(),
             sideEffect.collectLatest {
                 when (it) {
                     is HomeState.HomeSideEffect.NAVIGATE -> {
-                    binding.root.findNavController()
-                        .navigate(
-                            R.id.action_home_to_detailFragment
-                        )
+                        binding.root.findNavController()
+                            .navigate(
+                                R.id.action_home_to_detailFragment
+                            )
                     }
                 }
             }

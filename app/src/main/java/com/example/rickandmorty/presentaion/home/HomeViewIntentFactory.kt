@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class HomeViewIntentFactory @Inject constructor(
-    private val modelStore: HomeModelStore,
+    modelStore: HomeModelStore,
     private val pagingSource: CharactersPagingSource
 ) : IntentFactory<HomeViewEvents, HomeState, HomeState.HomeSideEffect>(modelStore) {
 

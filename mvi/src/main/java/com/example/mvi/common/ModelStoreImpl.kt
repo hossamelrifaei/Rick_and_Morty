@@ -38,8 +38,12 @@ open class ModelStoreImpl<STATE, SIDE_EFFECT>(startingState: STATE) :
         sideEffectChannel.trySend(sideEffect)
     }
 
-    override fun subscribe(state: (Flow<STATE>) -> Unit, sideEffect: (Flow<SIDE_EFFECT>) -> Unit) {
+    override fun subscribeState(state: (Flow<STATE>) -> Unit): ModelStoreImpl<STATE, SIDE_EFFECT> {
         state.invoke(store)
+        return this
+    }
+
+    override fun subscribeSideEffect(sideEffect: (Flow<SIDE_EFFECT>) -> Unit) {
         sideEffect.invoke(this.sideEffect)
     }
 

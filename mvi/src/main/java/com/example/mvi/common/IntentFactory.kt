@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.Flow
 abstract class IntentFactory<EVENT, STATE, SIDE_EFFECT>
     (private val store: ModelStore<STATE, SIDE_EFFECT>) : ViewModel() {
 
-    private val modelStore = store
     abstract fun toIntent(event: EVENT): Intent<STATE>
 
     fun process(event: EVENT) = store.process(toIntent(event))
@@ -17,6 +16,7 @@ abstract class IntentFactory<EVENT, STATE, SIDE_EFFECT>
 
     fun close() = store.close()
 
-    fun subscribe(state: (Flow<STATE>) -> Unit, sideEffect: (Flow<SIDE_EFFECT>) -> Unit) =
-        store.subscribe(state, sideEffect)
+    fun subscribeState(state: (Flow<STATE>) -> Unit): ModelStore<STATE, SIDE_EFFECT> {
+       return store.subscribeState(state)
+    }
 }
