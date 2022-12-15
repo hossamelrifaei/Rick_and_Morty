@@ -19,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class HomeViewIntentFactory @Inject constructor(
-    modelStore: HomeModelStore,
+     val modelStore: HomeModelStore,
     private val pagingSource: CharactersPagingSource
 ) : IntentFactory<HomeViewEvents, HomeState, HomeState.HomeSideEffect>(modelStore) {
 
@@ -49,7 +49,12 @@ open class HomeViewIntentFactory @Inject constructor(
         }
     }
 
-    fun openCharacterDetail(character: Character):
+    override fun onCleared() {
+        super.onCleared()
+        modelStore.close()
+    }
+
+    private fun openCharacterDetail(character: Character):
         Intent<HomeState> {
         sideEffect(HomeState.HomeSideEffect.SIDEEFFECT1)
         sideEffect(HomeState.HomeSideEffect.SIDEEFFECT2)

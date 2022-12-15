@@ -24,14 +24,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import model.Character
-import model.LocationModel
-import model.OriginModel
 import javax.inject.Inject
 
 
@@ -71,7 +67,7 @@ class HomeFragment : Fragment(),
 
                 viewEvents().onEach { viewModel.process(it) }
                     .launchIn(this)
-                viewModel.subscribeState {
+                viewModel.modelStore.subscribeState {
                     this.subscribeToState(it)
                 }.subscribeSideEffect {
                     this.subscribeToSideEffect(it)
@@ -92,24 +88,6 @@ class HomeFragment : Fragment(),
 
     override fun viewEvents(): Flow<HomeViewEvents> {
         val flows = listOf(
-            binding.fab.clicks().map {
-                HomeViewEvents.OnCharacterSelected(
-                    Character(
-                        id = 1,
-                        name = "Rick Sanchez",
-                        status = "Alive",
-                        species = "Human",
-                        type = "",
-                        gender = "Male",
-                        origin = OriginModel(name = "Earth (C-137)", url = ""),
-                        location = LocationModel(name = "Earth (Replacement Dimension)", url = ""),
-                        image = "https://rickandmortyapi.com/api/character/avatar/1.jpeg",
-                        episode = arrayListOf("https://rickandmortyapi.com/api/episode/1"),
-                        url = "https://rickandmortyapi.com/api/character/1",
-                        created = "2017-11-04T18:48:46.250Z"
-                    )
-                )
-            },
             event
         )
         return flows.merge()
