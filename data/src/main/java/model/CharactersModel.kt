@@ -1,7 +1,12 @@
 package model
 
-data class CharactersModel(val info: InfoModel, val characters: List<Character>)
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
+data class CharactersModel(val info: InfoModel, val characters: List<Character>) : Parcelable
+
+@Parcelize
 data class Character(
     val id: Int,
     val name: String,
@@ -15,13 +20,16 @@ data class Character(
     val episode: ArrayList<String>,
     val url: String,
     val created: String
-)
+) : Parcelable
 
-data class LocationModel(val name: String?, val url: String?)
+@Parcelize
+data class LocationModel(val name: String?, val url: String?) : Parcelable
 
-data class OriginModel(val name: String?, val url: String?)
+@Parcelize
+data class OriginModel(val name: String?, val url: String?) : Parcelable
 
+@Parcelize
 data class InfoModel(
     val count: Int,
     val pages: Int,
-)
+) : Parcelable

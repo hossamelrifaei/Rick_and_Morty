@@ -119,10 +119,7 @@ class HomeFragment : Fragment(),
             sideEffect.collectLatest {
                 when (it) {
                     is HomeState.HomeSideEffect.NAVIGATE -> {
-                        binding.root.findNavController()
-                            .navigate(
-                                R.id.action_home_to_detailFragment
-                            )
+                        binding.root.findNavController().navigate(HomeFragmentDirections.actionHomeToDetailFragment(it.character))
                     }
                 }
             }

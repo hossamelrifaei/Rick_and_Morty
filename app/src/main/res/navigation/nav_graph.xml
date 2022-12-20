@@ -18,5 +18,11 @@
         android:id="@+id/detailFragment"
         android:name="com.example.rickandmorty.presentaion.detail.DetailFragment"
         android:label="fragment_detail"
-        tools:layout="@layout/fragment_detail" />
+        tools:layout="@layout/fragment_detail" >
+        <argument
+            android:name="charachter"
+            app:argType="model.Character"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
 </navigation>

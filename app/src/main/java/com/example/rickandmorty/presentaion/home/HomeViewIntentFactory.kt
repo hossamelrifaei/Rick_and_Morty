@@ -55,10 +55,7 @@ open class HomeViewIntentFactory @Inject constructor(
     }
 
     private fun openCharacterDetail(character: Character):
-        Intent<HomeState> {
-        sideEffect(HomeState.HomeSideEffect.SIDEEFFECT1)
-        sideEffect(HomeState.HomeSideEffect.SIDEEFFECT2)
-        sideEffect(HomeState.HomeSideEffect.SIDEEFFECT3)
-        return intent { copy() }
+        Intent<HomeState> = asyncIntent {
+        sideEffect(HomeState.HomeSideEffect.NAVIGATE(character))
     }
 }
