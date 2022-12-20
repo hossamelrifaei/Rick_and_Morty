@@ -48,8 +48,9 @@ open class ModelStoreImpl<STATE, SIDE_EFFECT>(startingState: STATE) :
     }
 
     override fun close() {
+        scope.cancel()
         intentChannel.close()
         sideEffectChannel.close()
-        scope.cancel()
+
     }
 }
