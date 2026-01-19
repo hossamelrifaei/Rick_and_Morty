@@ -126,8 +126,7 @@ class HomeFragment : Fragment(),
                     is HomeState.State.IDEL -> adapter.doSubmitData(it.paging)
                     is HomeState.State.RETRY -> adapter.doRetry()
                     is HomeState.State.INITIAL -> {}
-
-
+                    is HomeState.State.LOADING -> TODO()
                 }
             }
         }
@@ -144,6 +143,10 @@ class HomeFragment : Fragment(),
                             R.id.action_home_to_detailFragment
                         )
                     }
+
+                    HomeState.HomeSideEffect.SIDEEFFECT1 -> {}
+                    HomeState.HomeSideEffect.SIDEEFFECT2 -> {}
+                    HomeState.HomeSideEffect.SIDEEFFECT3 -> {}
                 }
             }
         }

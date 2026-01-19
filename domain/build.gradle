@@ -4,9 +4,20 @@ plugins {
     id 'kotlin-kapt'
 }
 android {
+    namespace 'com.example.domain' // <-- Example, replace if needed
     compileSdkVersion 33
     defaultConfig {
         minSdk 21
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 

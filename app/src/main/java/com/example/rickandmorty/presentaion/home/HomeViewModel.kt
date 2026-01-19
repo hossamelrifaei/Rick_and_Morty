@@ -3,6 +3,7 @@ package com.example.rickandmorty.presentaion.home
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.mvi.common.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -10,8 +11,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val factory: HomeViewIntentFactory,
-) : ViewModel() {
+       factory: HomeViewIntentFactory
+) : BaseViewModel<HomeViewEvents, HomeState, HomeState.HomeSideEffect>(factory) {
 
 
     init {
